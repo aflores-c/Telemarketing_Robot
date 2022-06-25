@@ -1,0 +1,34 @@
+# Telemarketing_Robot for autonomous navigation in dynamic obstacles
+
+## Dependencies
+* ROS Noetic
+* Ubuntu 20
+* Navigation package installed
+
+## Download
+```sh
+$ https://github.com/aflores-c/Telemarketing_Robot
+```
+
+## Usage
+1.Run GAZEBO Simulation
+```sh
+$ roslaunch telemarketing_gazebo telemarketing_store.launch
+```
+
+2.Run Obstacle avoidance
+```sh
+$ roslaunch laser_filters range_filter_example.launch
+```
+
+3.Run RVIZ and NAVIGATION. You have two options: DWA Planner or TEB Planner
+```sh
+$ roslaunch telemarketing_navigation telemarketing_navigation.launch
+or 
+$ roslaunch telemarketing_navigation telemarketing_navigation_teb.launch 
+```
+
+4.You can teleoperate to help the robot to localize itself
+```sh
+$ roslaunch telemarketing_teleop telemarketing_teleop_key.launch 
+```
