@@ -1,6 +1,0 @@
-[submodule "laser_filters"]
-	path = laser_filters
-	url = https://github.com/ros-perception/laser_filters.git
-[submodule "gazebo-plugin-autonomous-actor"]
-	path = gazebo-plugin-autonomous-actor
-	url = https://github.com/BruceChanJianLe/gazebo-plugin-autonomous-actor.git
