@@ -1,10 +1,13 @@
 <launch>
-  <arg name="x_pos" default="-3.0"/>
-  <arg name="y_pos" default="1.0"/>
+  <arg name="x_pos" default="-8.0"/>
+  <arg name="y_pos" default="0"/>
   <arg name="z_pos" default="0.0"/>
+  <arg name="roll" default="0.0"/>
+  <arg name="pitch" default="0.0"/>
+  <arg name="yaw" default="0"/>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find telemarketing_gazebo)/worlds/Testing_Procedure/aleatorio.world"/>
+    <arg name="world_name" value="$(find telemarketing_gazebo)/worlds/Testing_Procedure/cruzando4Actores_0_4_m_s.world"/>
     <arg name="paused" value="false"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="gui" value="true"/>
@@ -14,7 +17,7 @@
 
   <param name="robot_description" command="$(find xacro)/xacro --inorder $(find telemarketing_description)/urdf/telemarketing.xacro" />
 
-  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model telemarketing -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -param robot_description" />
+  <node name="spawn_urdf" pkg="gazebo_ros" type="spawn_model" args="-urdf -model telemarketing -x $(arg x_pos) -y $(arg y_pos) -z $(arg z_pos) -R $(arg roll) -P $(arg pitch) -Y $(arg yaw) -param robot_description" />
 
    <!-- Convert joint states to TF transforms for RViz, position of the robot, etc -->
   <node pkg="robot_state_publisher" type="robot_state_publisher" name="robot_state_publisher" output="screen">
