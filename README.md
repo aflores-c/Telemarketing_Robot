@@ -21,11 +21,13 @@ $ roslaunch telemarketing_gazebo telemarketing_store.launch
 $ roslaunch laser_filters range_filter_example.launch
 ```
 
-3.Run RVIZ and NAVIGATION. You have two options: DWA Planner or TEB Planner
+3.Run RVIZ and NAVIGATION. You have two options: DWA Planner, TEB Planner or MPC Planner
 ```sh
 $ roslaunch telemarketing_navigation telemarketing_navigation.launch
 or 
 $ roslaunch telemarketing_navigation telemarketing_navigation_teb.launch 
+or
+$ roslaunch telemarketing_navigation telemarketing_navigation_mpc.launch
 ```
 
 4.You can teleoperate to help the robot to localize itself
