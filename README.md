@@ -21,7 +21,7 @@ $ roslaunch telemarketing_gazebo telemarketing_store.launch
 $ roslaunch laser_filters range_filter_example.launch
 ```
 
-3.Run RVIZ and NAVIGATION. You have two options: DWA Planner, TEB Planner or MPC Planner
+3.Run RVIZ and NAVIGATION. You have three options: DWA Planner, TEB Planner or MPC Planner
 ```sh
 $ roslaunch telemarketing_navigation telemarketing_navigation.launch
 or 
