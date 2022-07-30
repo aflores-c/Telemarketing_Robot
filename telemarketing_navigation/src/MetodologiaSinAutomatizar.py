@@ -11,11 +11,8 @@ import message_filters
 import math
 import pandas as pd 
 
-filename=rospy.get_param('MetodologiaFinalCSV/filename')
-navegador=rospy.get_param('MetodologiaFinalCSV/navegador')
-num_obstaculos=rospy.get_param('MetodologiaFinalCSV/numero_obstaculos')
-tipo_movimiento=rospy.get_param('MetodologiaFinalCSV/tipo_movimiento')
-
+filename="mpc_0.2_4"
+navegador="mpc"
 
 ##INICIALIZACION
 distancia=list()
@@ -26,7 +23,7 @@ tiempo_inicio_navegacion=0
 
 ##CREACION DE DATAFRAME PARA EL CSV
 lista=[]
-cantidad_navegaciones_exportar_csv=int(rospy.get_param('MetodologiaFinalCSV/numero_intentos'))+1
+cantidad_navegaciones_exportar_csv=11
 current_navegaciones=0
 
 diccionario={"teb":"/move_base/TebLocalPlannerROS/global_plan","dwa":"/move_base/DWAPlannerROS/global_plan","mpc":"/move_base/MpcLocalPlannerROS/global_plan"}
@@ -76,7 +73,7 @@ def callback(odometria, model_states):
                 entro_zona_colision[i]=1
                 cantidad_colisiones+=1
                 print("El actor acaba de colisionar con el objeto: "+nombre)
-            if distancia>threshold_value_colision and entro_zona_colision[i]==1:
+            if distancia>threshold_value_colision:
                 entro_zona_colision[i]=0
 
             if distancia<threshold_value_ego_score and entro_zona_ego_score[i]==0:
@@ -103,31 +100,26 @@ def callback1(mensaje_goal):
 def callback2(mensaje_llegada):
     global lista,current_navegaciones
     tiempo_navegacion=time.time()-tiempo_inicio_navegacion
-    if tiempo_navegacion>10:                    
-        print("Tiempo total de navegacion: "+str(tiempo_navegacion)+" segundos")
-        print("Cantidad de colisiones: "+str(cantidad_colisiones))
-        ego_score=tiempo_ego_score*100/tiempo_navegacion
-        print("EgoScore: ",ego_score,"%")
-        print("Recorrido total de navegacion: "+str(LongitudTotal)+" metros")
-        print("Recorrido total de global planner: "+str(LongitudTotalGlobalPlanner)+" metros")
-        current_navegaciones+=1
-        if(current_navegaciones>1):
-            lista.append({
-                'Tiempo_total': tiempo_navegacion,
-                'Cantidad_Colisiones': cantidad_colisiones,
-                'EGO_SCORE': ego_score,
-                'Recorrido_total': LongitudTotal,
-                'Recorrido global path': LongitudTotalGlobalPlanner
-            })
-        print(lista)
+    print("Tiempo total de navegacion: "+str(tiempo_navegacion)+" segundos")
+    print("Cantidad de colisiones: "+str(cantidad_colisiones))
+    ego_score=tiempo_ego_score*100/tiempo_navegacion
+    print("EgoScore: ",ego_score,"%")
+    print("Recorrido total de navegacion: "+str(LongitudTotal)+" metros")
+    print("Recorrido total de global planner: "+str(LongitudTotalGlobalPlanner)+" metros")
+    current_navegaciones+=1
+    if(current_navegaciones>1):
+        lista.append({
+            'Tiempo_total': tiempo_navegacion,
+            'Cantidad_Colisiones': cantidad_colisiones,
+            'EGO_SCORE': ego_score,
+            'Recorrido_total': LongitudTotal,
+            'Recorrido global path': LongitudTotalGlobalPlanner
+        })
+    print(lista)
+    if(current_navegaciones==(cantidad_navegaciones_exportar_csv)):
         df = pd.DataFrame(lista)
-        df.loc[20]=df.mean().values
-        names = df.index.tolist()
-        names[len(names)-1]='PROMEDIO'
-        df.index = names
         print(df)
-        df.to_csv('/home/zetans/ros_ws/src/Telemarketing_Robot/telemarketing_navigation/src/resultados/'+tipo_movimiento+'/'+str(num_obstaculos)+'_Actores/'+filename+'.csv')
-
+        df.to_csv('/home/zetans/ros_ws/src/Telemarketing_Robot/telemarketing_navigation/src/resultados/'+filename+'.csv')
 ##RECORRIDO TOTAL
 def callback3(odometry_msg):
     global LongitudTotal

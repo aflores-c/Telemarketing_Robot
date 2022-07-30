@@ -20,4 +20,9 @@
     <node pkg="rviz" type="rviz" name="rviz" required="true"
           args="-d $(find telemarketing_navigation)/rviz/telemarketing_navigation.rviz"/>
   </group>
+
+  <!--package of laser filters-->
+  <node pkg="laser_filters" type="scan_to_scan_filter_chain" output="screen" name="laser_filter">
+    <rosparam command="load" file="$(find laser_filters)/examples/range_filter.yaml" />
+  </node>
 </launch>

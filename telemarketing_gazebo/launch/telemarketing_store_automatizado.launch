@@ -1,13 +1,27 @@
 <launch>
-  <arg name="x_pos" default="-2.0"/>
-  <arg name="y_pos" default="-1"/>
+  <arg name="x_pos" default="-3"/>
+  <arg name="y_pos" default="-15"/>
   <arg name="z_pos" default="0.0"/>
   <arg name="roll" default="0.0"/>
   <arg name="pitch" default="0.0"/>
-  <arg name="yaw" default="-0.8"/>
+  <arg name="yaw" default="0"/> 
+
+  <arg name="nombre_archivo" default="MundoConcentrado"/>
+  <arg name="numero_obstaculos" default="8"/>
+  <arg name="velocidad" default="0.6"/>
+  <arg name="tipo_movimiento" default="2_MismaDireccion"/>
+
+  <!--Building a world with input requirements-->
+  <node pkg="telemarketing_gazebo" type="AutomatizacionCreacionDeMundo.py" name="AutomatizacionCreacionDeMundo" output="screen">
+    <param name="number_dynamic_obstacles" type="int" value="$(arg numero_obstaculos)" />
+    <param name="speed_dynamic_obstacles" type="double" value="$(arg velocidad)" />
+    <param name="turning_time" type="double" value="0.5" />
+    <param name="nombre_archivo" type="str" value="$(arg nombre_archivo)"/>
+    <param name="tipo_movimiento" type="str" value="$(arg tipo_movimiento)"/>
+  </node>
 
   <include file="$(find gazebo_ros)/launch/empty_world.launch">
-    <arg name="world_name" value="$(find telemarketing_gazebo)/worlds/Testing_Procedure/MundoSinActores.world"/>
+    <arg name="world_name" value="$(find telemarketing_gazebo)/worlds/Testing_Procedure/$(arg tipo_movimiento)/$(arg numero_obstaculos)_Actores/$(arg nombre_archivo).world"/>
     <arg name="paused" value="false"/>
     <arg name="use_sim_time" value="true"/>
     <arg name="gui" value="true"/>

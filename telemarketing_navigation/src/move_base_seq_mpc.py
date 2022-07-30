@@ -3,30 +3,31 @@
 __author__ = 'fiorellasibona'
 import rospy
 import math
-import numpy as np
 
 import actionlib
 from move_base_msgs.msg import MoveBaseAction, MoveBaseGoal
 from actionlib_msgs.msg import GoalStatus
+from move_base_msgs.msg import MoveBaseActionResult
+
 from geometry_msgs.msg import Pose, Point, Quaternion
 from tf.transformations import quaternion_from_euler
+from nav_msgs.msg import Odometry
+import numpy as np
 import time
-from gazebo_msgs.msg import ModelStates
-
 
 class MoveBaseSeq():
 
     def __init__(self):
         rospy.init_node('move_base_sequence')
+        self.llego_a_la_meta=0
 
-        #self.pos_start_x=0
-        #self.pos_start_y=-6
 
         numero_intentos=int(rospy.get_param('move_base_seq/numero_intentos'))
         point_inicial=rospy.get_param('move_base_seq/p_inicial')
         point_final=rospy.get_param('move_base_seq/p_final')
         points_seq=list(point_inicial)
         
+
         angulos=rospy.get_param('move_base_seq/angle_sequence')
         yaweulerangles_seq=[angulos[0]]
 
@@ -59,7 +60,14 @@ class MoveBaseSeq():
         rospy.loginfo("Connected to move base server")
         rospy.loginfo("Starting goals achievements ...")
         self.movebase_client()
-    '''
+        
+    def active_cb(self):
+        rospy.loginfo("Goal pose "+str(self.goal_cnt+1)+" is now being processed by the Action Server...")
+
+    def feedback_cb(self, feedback):
+        #rospy.loginfo("Feedback for goal pose "+str(self.goal_cnt+1)+" received")
+        #print("Posicion x"+str(self.pose_seq[self.goal_cnt].position.x))
+        a=1
     def quaternion_to_euler(self,x, y, z, w):
         t0 = +2.0 * (w * x + y * z)
         t1 = +1.0 - 2.0 * (x * x + y * y)
@@ -74,15 +82,47 @@ class MoveBaseSeq():
         t4 = +1.0 - 2.0 * (y * y + z * z)
         Z = math.atan2(t3, t4)
 
-        return X, Y, Z   
-    '''
-    def active_cb(self):
-        rospy.loginfo("Goal pose "+str(self.goal_cnt+1)+" is now being processed by the Action Server...")
+        return X, Y, Z
+    def nueva_meta_llegada(self,odometry_msg):
+        position_x = odometry_msg.pose.pose.position.x
+        position_y = odometry_msg.pose.pose.position.y
 
-    def feedback_cb(self, feedback):
-        #rospy.loginfo("Feedback for goal pose "+str(self.goal_cnt+1)+" received")
-        #print(str(self.pose_seq[self.goal_cnt]))
-        a=1
+        cuat_x=odometry_msg.pose.pose.orientation.x
+        cuat_y=odometry_msg.pose.pose.orientation.y
+        cuat_z=odometry_msg.pose.pose.orientation.z
+        cuat_w=odometry_msg.pose.pose.orientation.w
+        roll,pitch,yaw=self.quaternion_to_euler(cuat_x,cuat_y,cuat_z,cuat_w)
+
+        cuat_x_deseado=self.pose_seq[self.goal_cnt].orientation.x
+        cuat_y_deseado=self.pose_seq[self.goal_cnt].orientation.y
+        cuat_z_deseado=self.pose_seq[self.goal_cnt].orientation.z
+        cuat_w_deseado=self.pose_seq[self.goal_cnt].orientation.w
+        roll,pitch,angulo_deseado=self.quaternion_to_euler(cuat_x_deseado,cuat_y_deseado,cuat_z_deseado,cuat_w_deseado)
+
+        distancia_referencia=0.2
+        distancia=np.sqrt(np.power((position_x - self.pose_seq[self.goal_cnt].position.x), 2) + np.power((position_y- self.pose_seq[self.goal_cnt].position.y), 2))
+        
+        error_angulo_deseado=0.2
+        error_angulo=abs(yaw-angulo_deseado)
+        if(distancia<distancia_referencia and error_angulo<error_angulo_deseado):
+            self.goal_cnt += 1
+
+            #Accion de llegada
+            llegada=MoveBaseActionResult()
+            llegada.status.text="ksjakdjas"
+            self.pub.publish(llegada)
+            if self.goal_cnt< len(self.pose_seq):
+                next_goal = MoveBaseGoal()
+                next_goal.target_pose.header.frame_id = "map"
+                next_goal.target_pose.header.stamp = rospy.Time.now()
+                next_goal.target_pose.pose = self.pose_seq[self.goal_cnt]
+                rospy.loginfo("Sending goal pose "+str(self.goal_cnt+1)+" to Action Server")
+                rospy.loginfo(str(self.pose_seq[self.goal_cnt]))
+                self.client.send_goal(next_goal, self.done_cb, self.active_cb, self.feedback_cb) 
+            else:
+                rospy.loginfo("Final goal pose reached!")
+                rospy.signal_shutdown("Final goal pose reached!")
+        #print(self.goal_cnt)
     def done_cb(self, status, result):
         print(status)
         print(result)
@@ -95,17 +135,6 @@ class MoveBaseSeq():
         if status == 3:
             self.tiempo_anterior=time.time()
             rospy.loginfo("Goal pose "+str(self.goal_cnt)+" reached") 
-            
-            '''
-            while 1:
-                distancia=np.sqrt((self.pos_modelo_x-self.pos_start_x)**2+(self.pos_modelo_y-self.pos_start_y)**2)
-                roll,pitch,yaw=self.quaternion_to_euler(self.cuat_x,self.cuat_y,self.cuat_z,self.cuat_w)
-
-                #print("Distancia: ",distancia," Angulo: ",yaw)
-
-                if(distancia<0.1 and (yaw<0)):
-                    break
-            '''
             if self.goal_cnt< len(self.pose_seq):
                 next_goal = MoveBaseGoal()
                 next_goal.target_pose.header.frame_id = "map"
@@ -131,28 +160,17 @@ class MoveBaseSeq():
 
         if status == 8:
             rospy.loginfo("Goal pose "+str(self.goal_cnt)+" received a cancel request before it started executing, successfully cancelled!")
-    '''
-    def callback(self,model_states):
-        for i in range(len(model_states.name)):
-            nombre=model_states.name[i]
-            if nombre=="actor1":
-                self.pos_modelo_x=round(model_states.pose[i].position.x,2)
-                self.pos_modelo_y=round(model_states.pose[i].position.y,2)
-                self.cuat_x=model_states.pose[i].orientation.x
-                self.cuat_y=model_states.pose[i].orientation.y
-                self.cuat_z=model_states.pose[i].orientation.z
-                self.cuat_w=model_states.pose[i].orientation.w
-                #print(self.pos_modelo_x,", ",self.pos_modelo_y)
-    '''
+
     def movebase_client(self):
         goal = MoveBaseGoal()
         goal.target_pose.header.frame_id = "map"
         goal.target_pose.header.stamp = rospy.Time.now() 
         goal.target_pose.pose = self.pose_seq[self.goal_cnt]
         rospy.loginfo("Sending goal pose "+str(self.goal_cnt+1)+" to Action Server")
-        rospy.loginfo("Posicion: "+str(self.pose_seq[self.goal_cnt]))
+        rospy.loginfo(str(self.pose_seq[self.goal_cnt]))
         self.client.send_goal(goal, self.done_cb, self.active_cb, self.feedback_cb)
-        #rospy.Subscriber("gazebo/model_states", ModelStates, self.callback)
+        rospy.Subscriber("/odom", Odometry, self.nueva_meta_llegada)
+        self.pub = rospy.Publisher("move_base/result", MoveBaseActionResult, queue_size=10)
         rospy.spin()
 
 if __name__ == '__main__':
