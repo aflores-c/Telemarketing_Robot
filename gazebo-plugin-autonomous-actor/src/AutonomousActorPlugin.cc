@@ -66,6 +66,11 @@ void AutoActorPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
   else
     this->limit_y_sup = -5.0;  
 
+  if (_sdf->HasElement("velocidad"))
+    this->velocity = _sdf->Get<double>("velocidad");
+  else
+    this->velocity = 5; 
+
 
   // Read in the target weight
   if (_sdf->HasElement("target_weight"))
@@ -112,7 +117,7 @@ void AutoActorPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 /////////////////////////////////////////////////
 void AutoActorPlugin::Reset()
 {
-  this->velocity = 0.8;
+  //this->velocity = 0.8;
   this->lastUpdate = 0;
 
   this->target = this->targets.at(this->idx);

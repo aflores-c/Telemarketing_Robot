@@ -32,6 +32,8 @@
         <limit_y_inf>-2.0</limit_y_inf>
         <limit_x_sup>2.0</limit_x_sup>
         <limit_y_sup>2.0</limit_y_sup>
+        <velocidad>0.2</velocidad>
+
         <targets>
             <target>0 0 0</target>
         </targets>
@@ -61,6 +63,8 @@
         <limit_y_inf>4.0</limit_y_inf>
         <limit_x_sup>8.0</limit_x_sup>
         <limit_y_sup>8.0</limit_y_sup>
+        <velocidad>0.2</velocidad>
+
         <targets>
             <target>5 5 0</target>
         </targets>
