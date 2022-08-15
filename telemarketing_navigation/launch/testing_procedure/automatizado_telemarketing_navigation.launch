@@ -3,12 +3,13 @@
   <arg name="map_file" default="$(find telemarketing_navigation)/maps/mymap.yaml"/>
   <arg name="open_rviz" default="true"/>
   <arg name="move_forward_only" default="true"/>
+  
   <arg name="algoritmoNavegacion" default="mpc"/>
   <arg name="numero_intentos" default="10"/>
 
-  <arg name="numero_obstaculos" default="8"/>
-  <arg name="velocidad" default="0.6"/>
-  <arg name="tipo_movimiento" default="2_MismaDireccion"/>
+  <arg name="numero_obstaculos" default="0"/>
+  <arg name="velocidad" default="0.3"/>
+  <arg name="tipo_movimiento" default="4_MundoVacio"/>
 
   <!-- Map server -->
   <node pkg="map_server" name="map_server" type="map_server" args="$(arg map_file)"/>

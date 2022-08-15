@@ -45,6 +45,28 @@ void AutoActorPlugin::Load(physics::ModelPtr _model, sdf::ElementPtr _sdf)
 
   this->Reset();
 
+  // Added by ljsv
+  if (_sdf->HasElement("limit_x_inf"))
+    this->limit_x_inf = _sdf->Get<double>("limit_x_inf");
+  else
+    this->limit_x_inf = -2.0;
+
+  if (_sdf->HasElement("limit_y_inf"))
+    this->limit_y_inf = _sdf->Get<double>("limit_y_inf");
+  else
+    this->limit_y_inf = -12.0;
+
+  if (_sdf->HasElement("limit_x_sup"))
+    this->limit_x_sup = _sdf->Get<double>("limit_x_sup");
+  else
+    this->limit_x_sup = 6.0;
+
+  if (_sdf->HasElement("limit_y_sup"))
+    this->limit_y_sup = _sdf->Get<double>("limit_y_sup");
+  else
+    this->limit_y_sup = -5.0;  
+
+
   // Read in the target weight
   if (_sdf->HasElement("target_weight"))
     this->targetWeight = _sdf->Get<double>("target_weight");
@@ -119,8 +141,8 @@ void AutoActorPlugin::ChooseNewTarget()
   ignition::math::Vector3d newTarget(this->target);
   while ((newTarget - this->target).Length() < 2.0)
   {
-    newTarget.X(ignition::math::Rand::DblUniform(-2, 6));
-    newTarget.Y(ignition::math::Rand::DblUniform(-12, -5));
+    newTarget.X(ignition::math::Rand::DblUniform(this->limit_x_inf, this->limit_x_sup));
+    newTarget.Y(ignition::math::Rand::DblUniform(this->limit_y_inf, this->limit_y_sup));
 
     for (unsigned int i = 0; i < this->world->ModelCount(); ++i)
     {
@@ -211,8 +233,8 @@ void AutoActorPlugin::OnUpdate(const common::UpdateInfo &_info)
   }
 
   // Make sure the actor stays within bounds
-  pose.Pos().X(std::max(-2.0, std::min(6.0, pose.Pos().X())));
-  pose.Pos().Y(std::max(-12.0, std::min(-5.0, pose.Pos().Y())));
+  pose.Pos().X(std::max(this->limit_x_inf, std::min(this->limit_x_sup, pose.Pos().X())));
+  pose.Pos().Y(std::max(this->limit_y_inf, std::min(this->limit_y_sup, pose.Pos().Y())));
   pose.Pos().Z(1.2138);
 
   // Distance traveled is used to coordinate motion with the walking

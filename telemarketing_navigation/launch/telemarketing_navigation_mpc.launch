@@ -18,7 +18,7 @@
   <!-- rviz -->
   <group if="$(arg open_rviz)"> 
     <node pkg="rviz" type="rviz" name="rviz" required="true"
-          args="-d $(find telemarketing_navigation)/rviz/telemarketing_navigation.rviz"/>
+          args="-d $(find telemarketing_navigation)/rviz/mpc_telemarketing_navigation.rviz"/>
   </group>
 
   <!--package of laser filters-->

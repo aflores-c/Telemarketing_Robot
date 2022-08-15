@@ -99,14 +99,14 @@ class MoveBaseSeq():
         cuat_w_deseado=self.pose_seq[self.goal_cnt].orientation.w
         roll,pitch,angulo_deseado=self.quaternion_to_euler(cuat_x_deseado,cuat_y_deseado,cuat_z_deseado,cuat_w_deseado)
 
-        distancia_referencia=0.2
+        distancia_referencia=0.3
         distancia=np.sqrt(np.power((position_x - self.pose_seq[self.goal_cnt].position.x), 2) + np.power((position_y- self.pose_seq[self.goal_cnt].position.y), 2))
         
-        error_angulo_deseado=0.2
+        error_angulo_deseado=0.3
         error_angulo=abs(yaw-angulo_deseado)
         if(distancia<distancia_referencia and error_angulo<error_angulo_deseado):
             self.goal_cnt += 1
-
+            print("llegueeee")
             #Accion de llegada
             llegada=MoveBaseActionResult()
             llegada.status.text="ksjakdjas"

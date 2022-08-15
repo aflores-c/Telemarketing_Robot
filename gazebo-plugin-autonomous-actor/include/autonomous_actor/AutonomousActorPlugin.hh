@@ -67,6 +67,12 @@ namespace gazebo
     /// \brief Obstacle weight (used for vector field)
     private: double obstacleWeight = 1.0;
 
+    /// Added by LJSV
+    private: double limit_x_inf = 1.0;
+    private: double limit_y_inf = 1.0;
+    private: double limit_x_sup = 1.0;
+    private: double limit_y_sup = 1.0;
+
     /// \brief Time scaling factor. Used to coordinate translational motion
     /// with the actor's walking animation.
     private: double animationFactor = 1.0;

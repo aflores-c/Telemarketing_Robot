@@ -22,6 +22,8 @@ distancia=list()
 entro_zona_colision=list()
 entro_zona_ego_score=list()
 tiempos_entrada_ego_score=list()
+tiempos_entre_colision=list()
+
 tiempo_inicio_navegacion=0
 
 ##CREACION DE DATAFRAME PARA EL CSV
@@ -35,6 +37,7 @@ for i in range(1000):
     entro_zona_colision.append(0)
     entro_zona_ego_score.append(0)
     tiempos_entrada_ego_score.append(0)
+    tiempos_entre_colision.append(0)
 cantidad_colisiones=0
 tiempo_ego_score=0
 
@@ -73,11 +76,16 @@ def callback(odometria, model_states):
             #if nombre=="actor7":
                 #print(entro_zona_colision)
             if distancia<threshold_value_colision and entro_zona_colision[i]==0:
-                entro_zona_colision[i]=1
-                cantidad_colisiones+=1
-                print("El actor acaba de colisionar con el objeto: "+nombre)
+                tiempo_que_paso = time.time() - tiempos_entre_colision[i]
+                print(tiempo_que_paso)
+                if tiempo_que_paso>3:        
+                    tiempos_entre_colision[i] = time.time()
+                    entro_zona_colision[i]=1
+                    cantidad_colisiones+=1
+                    print("El actor acaba de colisionar con el objeto: "+nombre)
             if distancia>threshold_value_colision and entro_zona_colision[i]==1:
                 entro_zona_colision[i]=0
+
 
             if distancia<threshold_value_ego_score and entro_zona_ego_score[i]==0:
                 entro_zona_ego_score[i]=1
