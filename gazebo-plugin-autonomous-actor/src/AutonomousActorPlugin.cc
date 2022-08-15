@@ -145,10 +145,18 @@ void AutoActorPlugin::ChooseNewTarget()
   // Increase index number in sequence
   ignition::math::Vector3d newTarget(this->target);
   while ((newTarget - this->target).Length() < 2.0)
-  {
-    newTarget.X(ignition::math::Rand::DblUniform(this->limit_x_inf, this->limit_x_sup));
-    newTarget.Y(ignition::math::Rand::DblUniform(this->limit_y_inf, this->limit_y_sup));
+  { 
+    double min_x, max_x, min_y, max_y; 
+  
+    min_x = std::min(this->limit_x_inf, this->limit_x_sup);
+    max_x = std::max(this->limit_x_inf, this->limit_x_sup);
+    
+    min_y = std::min(this->limit_y_inf, this->limit_y_sup);
+    max_y = std::max(this->limit_y_inf, this->limit_y_sup);
 
+    newTarget.X(ignition::math::Rand::DblUniform(min_x, max_x));
+    newTarget.Y(ignition::math::Rand::DblUniform(min_y, max_y));
+    /*
     for (unsigned int i = 0; i < this->world->ModelCount(); ++i)
     {
       double dist = (this->world->ModelByIndex(i)->WorldPose().Pos()
@@ -159,6 +167,7 @@ void AutoActorPlugin::ChooseNewTarget()
         break;
       }
     }
+    */
   }
 
   // Set next target
@@ -168,7 +177,7 @@ void AutoActorPlugin::ChooseNewTarget()
 
 /////////////////////////////////////////////////
 void AutoActorPlugin::HandleObstacles(ignition::math::Vector3d &_pos)
-{
+{ 
   for (unsigned int i = 0; i < this->world->ModelCount(); ++i)
   {
     physics::ModelPtr model = this->world->ModelByIndex(i);
@@ -238,8 +247,16 @@ void AutoActorPlugin::OnUpdate(const common::UpdateInfo &_info)
   }
 
   // Make sure the actor stays within bounds
-  pose.Pos().X(std::max(this->limit_x_inf, std::min(this->limit_x_sup, pose.Pos().X())));
-  pose.Pos().Y(std::max(this->limit_y_inf, std::min(this->limit_y_sup, pose.Pos().Y())));
+  double min_x, max_x, min_y, max_y; 
+
+  min_x = std::min(this->limit_x_inf, this->limit_x_sup);
+  max_x = std::max(this->limit_x_inf, this->limit_x_sup);
+  
+  min_y = std::min(this->limit_y_inf, this->limit_y_sup);
+  max_y = std::max(this->limit_y_inf, this->limit_y_sup);
+  
+  pose.Pos().X(std::max(min_x, std::min(max_x, pose.Pos().X())));
+  pose.Pos().Y(std::max(min_y, std::min(max_y, pose.Pos().Y())));
   pose.Pos().Z(1.2138);
 
   // Distance traveled is used to coordinate motion with the walking
